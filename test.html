@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>irl.dev</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+            font-family: 'Quicksand', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .circle {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.6);
+            transition: transform 0.05s ease-in-out, box-shadow 0.05s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Listening effect */
+        .listening {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 1);
+        }
+
+        .button-container {
+            margin-top: 150px;
+        }
+
+        .start-button {
+            padding: 10px 28px;
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .caption {
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: 400;
+            text-align: center;
+            color: white;
+            min-height: 30px;
+            visibility: hidden;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            transition: opacity 0.3s ease;
+        }
+
+        .mode-toggle:hover {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <a class="mode-toggle" id="modeToggle">💬</a>
+
+    <div class="circle" id="glowingCircle"></div>
+
+    <div class="caption" id="caption"></div>
+
+    <div class="button-container">
+        <button class="start-button" id="startButton">Start</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const circle = document.getElementById('glowingCircle');
+            const caption = document.getElementById('caption');
+            const startButton = document.getElementById('startButton');
+            const modeToggle = document.getElementById('modeToggle');
+
+            let recognition;
+            let isSpeakingMode = true;
+
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                let speaking = false;
+
+                recognition.onresult = function(event) {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript + ' ';
+                    }
+
+                    caption.textContent = transcript.trim();
+                    caption.style.visibility = transcript.trim() ? "visible" : "hidden";
+
+                    // Faster effect when speaking starts
+                    if (!speaking) {
+                        circle.classList.add("listening");
+                        speaking = true;
+                    }
+
+                    // Reset effect when silence is detected
+                    clearTimeout(window.speechTimeout);
+                    window.speechTimeout = setTimeout(() => {
+                        circle.classList.remove("listening");
+                        speaking = false;
+                    }, 100);
+                };
+
+                recognition.onerror = function(event) {
+                    console.error("Speech Recognition Error:", event.error);
+                };
+            }
+
+            // Start microphone when clicking the Start button
+            startButton.addEventListener('click', function() {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(function(stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                            if (recognition && isSpeakingMode) {
+                                recognition.start();
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error("Microphone access denied:", err);
+                        });
+                }
+            });
+
+            // Toggle between Speak Mode and Chat Mode
+            modeToggle.addEventListener('click', function() {
+                isSpeakingMode = !isSpeakingMode;
+
+                if (isSpeakingMode) {
+                    modeToggle.textContent = "💬"; // Chat Mode Icon
+                    if (recognition) recognition.start();
+                } else {
+                    modeToggle.textContent = "🎤"; // Speak Mode Icon
+                    if (recognition) recognition.stop();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
