@@ -16,31 +16,31 @@
             overflow: hidden;
         }
 
-        /* Swift AI-Style Red Dot */
+        /* Exact Swift AI Red Dot */
         .dot {
-            width: 150px;
-            height: 150px;
-            background-color: red;
+            width: 140px;
+            height: 140px;
+            background-color: rgba(255, 0, 0, 1);
             border-radius: 50%;
             position: absolute;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.7);
-            filter: blur(30px);
-            animation: idleGlow 3s infinite ease-in-out;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out;
-        }
-
-        /* Soft Breathing Animation (Idle State) */
-        @keyframes idleGlow {
-            0% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 0, 0, 0.7); }
-            50% { transform: scale(1.1); box-shadow: 0 0 70px rgba(255, 0, 0, 0.9); }
-            100% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 0, 0, 0.7); }
-        }
-
-        /* Speaking Effect */
-        .speaking {
-            transform: scale(1.5);
-            box-shadow: 0 0 100px rgba(255, 0, 0, 1);
             filter: blur(40px);
+            box-shadow: 0 0 100px rgba(255, 0, 0, 0.9);
+            animation: idleGlow 3s infinite ease-in-out;
+            transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        /* Subtle Breathing Animation (Idle State) */
+        @keyframes idleGlow {
+            0% { transform: scale(1); box-shadow: 0 0 80px rgba(255, 0, 0, 0.8); }
+            50% { transform: scale(1.2); box-shadow: 0 0 120px rgba(255, 0, 0, 1); }
+            100% { transform: scale(1); box-shadow: 0 0 80px rgba(255, 0, 0, 0.8); }
+        }
+
+        /* Speaking Effect (Expanding and Glowing) */
+        .speaking {
+            transform: scale(1.8);
+            filter: blur(50px);
+            box-shadow: 0 0 150px rgba(255, 0, 0, 1);
             animation: none;
         }
     </style>
@@ -65,7 +65,7 @@
                     clearTimeout(window.speechTimeout);
                     window.speechTimeout = setTimeout(() => {
                         dot.classList.remove("speaking"); // Reset after silence
-                    }, 500);
+                    }, 300);
                 };
 
                 recognition.onerror = function(event) {
