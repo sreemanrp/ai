@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Offline AI Agent</title>
     <style>
+        @font-face {
+            font-family: 'Brass Mono Code';
+            src: url('BrassMonoCode.woff2') format('woff2'); /* Make sure to have the correct font file */
+        }
+
         body {
             margin: 0;
             display: flex;
@@ -14,6 +19,7 @@
             background-color: black;
             overflow: hidden;
             flex-direction: column;
+            font-family: 'Brass Mono Code', monospace;
             backdrop-filter: blur(30px); /* Full-screen blur effect */
         }
 
@@ -49,7 +55,6 @@
             border-radius: 10px;
             font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 0 10px #ff4444;
             border: 1px solid #ff4444;
             backdrop-filter: none; /* No blur effect */
         }
@@ -57,7 +62,7 @@
 </head>
 <body>
     <div class="dot"></div>
-    <div class="error-message">⚠️ Loud noise detected</div>
+    <div class="error-message">❕ Loud noise detected</div>
 
     <script>
         const dot = document.querySelector('.dot');
