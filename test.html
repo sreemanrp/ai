@@ -20,16 +20,19 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.1s ease; /* Faster opacity transition */
             filter: blur(50px);
             box-shadow: 0 0 20px red;
             opacity: 1;
-            animation: blink 1s infinite alternate; /* Blink animation always active */
         }
 
         .dot.active {
             box-shadow: 0 0 40px red, 0 0 80px rgba(255, 0, 0, 0.5);
-            animation: pulse 1s infinite alternate, blink 1s infinite alternate; /* Pulse animation added when active */
+            animation: pulse 1s infinite alternate; /* Pulse animation when active */
+        }
+
+        .dot.blink {
+            animation: blink 0.3s 1 alternate; /* Short, single blink */
         }
 
         @keyframes pulse {
@@ -40,7 +43,7 @@
 
         @keyframes blink {
             to {
-                opacity: 0.5; /* Adjust blink opacity */
+                opacity: 0.5;
             }
         }
     </style>
@@ -73,6 +76,9 @@
 
                     if (average > 30) {
                         dot.classList.add('active');
+                        dot.classList.add('blink'); // Trigger blink on voice
+                        setTimeout(() => dot.classList.remove('blink'), 300); // Remove blink class after animation
+
                         if(isMuted){
                             isMuted=false;
                             if (microphone.connect) microphone.connect(analyser);
