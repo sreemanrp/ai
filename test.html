@@ -20,25 +20,21 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            filter: blur(50px);
-            box-shadow: 0 0 20px red;
-            opacity: 1;
-            animation: pulse 1s infinite alternate; /* Always pulsing */
+            box-shadow: 0 0 100px 50px red; /* Smooth glow effect */
+            opacity: 0.3; /* Initially dim */
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        .blink {
-            animation: blink 0.3s 1 alternate;
+        .active {
+            opacity: 1;
+            animation: pulse 1s infinite alternate;
         }
 
         @keyframes pulse {
             to {
-                transform: scale(1.1);
-            }
-        }
-
-        @keyframes blink {
-            to {
-                opacity: 0.5;
+                transform: scale(1.2);
+                box-shadow: 0 0 150px 70px red; /* Stronger glow during pulse */
             }
         }
     </style>
@@ -51,6 +47,7 @@
         let audioContext;
         let analyser;
         let microphone;
+        let isActive = false;
 
         async function startVoiceDetection() {
             try {
@@ -69,9 +66,14 @@
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
 
                     if (average > 30) {
-                        if (!dot.classList.contains('blink')) {
-                            dot.classList.add('blink');
-                            setTimeout(() => dot.classList.remove('blink'), 300);
+                        if (!isActive) {
+                            dot.classList.add('active');
+                            isActive = true;
+                        }
+                    } else {
+                        if (isActive) {
+                            dot.classList.remove('active');
+                            isActive = false;
                         }
                     }
 
