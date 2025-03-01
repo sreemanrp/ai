@@ -22,14 +22,8 @@
             border-radius: 50%;
             filter: blur(50px);
             box-shadow: 0 0 20px red;
-            opacity: 0.3; /* Initially faded */
-            transform: scale(1);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .active {
             opacity: 1;
-            animation: pulse 1s infinite alternate;
+            animation: pulse 1s infinite alternate; /* Always pulsing */
         }
 
         .blink {
@@ -57,7 +51,6 @@
         let audioContext;
         let analyser;
         let microphone;
-        let isActive = false;
 
         async function startVoiceDetection() {
             try {
@@ -76,17 +69,9 @@
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
 
                     if (average > 30) {
-                        if (!isActive) {
-                            dot.classList.add('active');
-                            isActive = true;
-                        }
-                        
-                        dot.classList.add('blink');
-                        setTimeout(() => dot.classList.remove('blink'), 300);
-                    } else {
-                        if (isActive) {
-                            dot.classList.remove('active');
-                            isActive = false;
+                        if (!dot.classList.contains('blink')) {
+                            dot.classList.add('blink');
+                            setTimeout(() => dot.classList.remove('blink'), 300);
                         }
                     }
 
