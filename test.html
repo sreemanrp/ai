@@ -3,108 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Listening</title>
+    <title>AI Website</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-color: black;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden;
+            background-color: #f0f0f0;
+            margin: 0;
         }
 
-        /* Swift AI Exact Red Dot */
-        .dot {
-            width: 80px;
-            height: 80px;
-            background-color: rgba(255, 0, 0, 1);
-            border-radius: 50%;
-            position: absolute;
-            filter: blur(20px);
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
-            animation: blink 1.5s infinite ease-in-out;
-            transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Blinking Effect */
-        @keyframes blink {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.1); }
-            100% { opacity: 1; transform: scale(1); }
+        .header {
+            font-size: 2em;
+            margin-bottom: 20px;
         }
 
-        /* Speaking Effect */
-        .speaking {
-            transform: scale(1.4);
-            filter: blur(25px);
-            box-shadow: 0 0 70px rgba(255, 0, 0, 1);
-            animation: none;
+        .description {
+            font-size: 1.2em;
+            color: #555;
         }
     </style>
 </head>
 <body>
-
-    <div class="dot" id="dot"></div>
+    <div class="container">
+        <div class="header">Welcome to AI Website</div>
+        <div class="description">This is a simple AI website without input box and additional text.</div>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const dot = document.getElementById("dot");
-            let recognition;
-            let isMuted = false;
+        // Request access to the microphone
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const mic = audioContext.createMediaStreamSource(stream);
+                const analyser = audioContext.createAnalyser();
+                mic.connect(analyser);
 
-            if ('webkitSpeechRecognition' in window) {
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.lang = "en-US";
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
 
-                recognition.onstart = function() {
-                    isMuted = false;
-                };
+                let silenceStart = performance.now();
+                const silenceDelay = 5000; // 5 seconds
 
-                recognition.onresult = function(event) {
-                    dot.classList.add("speaking");  // Expand & glow while speaking
-                    clearTimeout(window.speechTimeout);
-                    window.speechTimeout = setTimeout(() => {
-                        dot.classList.remove("speaking"); // Reset after silence
-                        muteMic();  // Auto mute when silent
-                    }, 1000);
-                };
+                function checkSilence() {
+                    analyser.getByteFrequencyData(dataArray);
 
-                recognition.onerror = function(event) {
-                    console.error("Speech Recognition Error:", event.error);
-                };
-
-                function startListening() {
-                    if (isMuted) {
-                        recognition.start();
-                        isMuted = false;
+                    let sum = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        sum += dataArray[i];
                     }
+
+                    const average = sum / bufferLength;
+
+                    if (average < 10) {
+                        if (performance.now() - silenceStart > silenceDelay) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+                    } else {
+                        silenceStart = performance.now();
+                    }
+
+                    requestAnimationFrame(checkSilence);
                 }
 
-                function muteMic() {
-                    recognition.stop();
-                    isMuted = true;
-                    setTimeout(startListening, 2000); // Restart after 2 sec
-                }
-
-                // Request mic access & start recognition
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                    .then(function(stream) {
-                        stream.getTracks().forEach(track => track.stop()); // Release mic after permission
-                        recognition.start();
-                    })
-                    .catch(function(err) {
-                        console.error("Microphone access denied:", err);
-                    });
-            } else {
-                console.warn("Speech Recognition Not Supported");
-            }
-        });
+                checkSilence();
+            })
+            .catch(error => {
+                console.error('Error accessing microphone:', error);
+            });
     </script>
-
 </body>
 </html>
