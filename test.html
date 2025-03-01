@@ -12,14 +12,28 @@
             align-items: center;
             height: 100vh;
             background-color: black;
+            overflow: hidden; /* Prevent scrollbars */
         }
 
         .dot {
-            width: 50px;
-            height: 50px;
+            width: 100px; /* Increased size for better blur effect */
+            height: 100px;
             background-color: red;
             border-radius: 50%;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            filter: blur(50px); /* Apply the blur effect */
+            box-shadow: 0 0 20px red; /* Initial glow */
+        }
+
+        .dot.active {
+            box-shadow: 0 0 40px red, 0 0 80px rgba(255, 0, 0, 0.5); /* Enhanced glow */
+            animation: pulse 1s infinite alternate; /* Pulse animation */
+        }
+
+        @keyframes pulse {
+            to {
+                transform: scale(1.1);
+            }
         }
     </style>
 </head>
@@ -50,13 +64,13 @@
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
 
                     if (average > 30) {
-                        dot.style.transform = 'scale(1.2)';
+                        dot.classList.add('active'); // Add active class for glow and pulse
                         if(isMuted){
                             isMuted=false;
                             if (microphone.connect) microphone.connect(analyser);
                         }
                     } else {
-                        dot.style.transform = 'scale(1)';
+                        dot.classList.remove('active'); // Remove active class
                         if(!isMuted){
                             isMuted = true;
                             microphone.disconnect();
