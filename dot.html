@@ -52,6 +52,15 @@
             right: 20px;
             display: flex;
             gap: 15px;
+            align-items: center;
+        }
+
+        .plus-icon {
+            font-size: 30px;
+            color: red;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
         }
 
         .icon {
@@ -59,6 +68,50 @@
             color: white;
             cursor: pointer;
             user-select: none;
+        }
+
+        /* Bot Form */
+        .bot-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #111;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .bot-form input,
+        .bot-form select {
+            width: 90%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid white;
+            background: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .bot-form button {
+            width: 100%;
+            padding: 8px;
+            background: red;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .bot-form button:hover {
+            background: darkred;
         }
 
         /* Info Box */
@@ -125,7 +178,7 @@
 
     <!-- Top Right Icons -->
     <div class="top-right">
-        <span class="icon">+</span>
+        <span class="plus-icon" onclick="toggleBotForm()">+</span>
         <span class="icon" onclick="toggleInfoBox()">?</span>
     </div>
 
@@ -142,10 +195,53 @@
         <button onclick="toggleInfoBox()">Got it</button>
     </div>
 
+    <!-- Bot Form -->
+    <div class="bot-form" id="botForm">
+        <span class="close" onclick="toggleBotForm()">×</span>
+        <h2>Setup Your AI Bot</h2>
+        <input type="text" id="botName" placeholder="Bot Name">
+        <select id="botMode">
+            <option value="bot">Bot</option>
+            <option value="friend">Friend</option>
+            <option value="dad">Dad</option>
+            <option value="mom">Mom</option>
+            <option value="sister">Sister</option>
+            <option value="brother">Brother</option>
+            <option value="aunt">Aunt</option>
+            <option value="uncle">Uncle</option>
+            <option value="friendly">Friendly</option>
+        </select>
+        <input type="text" id="apiKey" placeholder="ChatGPT API Key">
+        <button onclick="setupBot()">Start AI</button>
+    </div>
+
     <script>
         function toggleInfoBox() {
             const infoBox = document.getElementById('infoBox');
             infoBox.style.display = (infoBox.style.display === "block") ? "none" : "block";
+        }
+
+        function toggleBotForm() {
+            const botForm = document.getElementById('botForm');
+            botForm.style.display = (botForm.style.display === "block") ? "none" : "block";
+        }
+
+        function setupBot() {
+            const botName = document.getElementById('botName').value;
+            const botMode = document.getElementById('botMode').value;
+            const apiKey = document.getElementById('apiKey').value;
+
+            if (!botName || !apiKey) {
+                alert("Please enter all details.");
+                return;
+            }
+
+            localStorage.setItem("botName", botName);
+            localStorage.setItem("botMode", botMode);
+            localStorage.setItem("apiKey", apiKey);
+
+            alert(`AI Bot "${botName}" is set up in "${botMode}" mode.`);
+            toggleBotForm();
         }
     </script>
 
