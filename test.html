@@ -43,30 +43,13 @@
                 transform: scale(1.1);
             }
         }
-
-        .error-message {
-            display: none;
-            position: absolute;
-            bottom: 80px; /* Adjusted position */
-            left: 20px;
-            background-color: #4c0000;
-            color: #ff7777;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            border: 1px solid #ff4444; /* No glow effect */
-            backdrop-filter: none;
-        }
     </style>
 </head>
 <body>
     <div class="dot"></div>
-    <div class="error-message">❕ Loud noise detected</div>
 
     <script>
         const dot = document.querySelector('.dot');
-        const errorMessage = document.querySelector('.error-message');
 
         let recognition;
         let isSpeaking = false;
@@ -89,11 +72,6 @@
                     analyser.getByteFrequencyData(dataArray);
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
                     const currentTime = Date.now();
-
-                    if (average > 100) {
-                        errorMessage.style.display = "block";
-                        setTimeout(() => errorMessage.style.display = "none", 2000);
-                    }
 
                     if (average > 30) {
                         lastVoiceTime = currentTime;
