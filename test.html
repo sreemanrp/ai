@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Activated Dot</title>
+    <title>Offline AI Agent</title>
     <style>
         body {
             margin: 0;
@@ -14,6 +14,8 @@
             background-color: black;
             overflow: hidden;
             flex-direction: column;
+            color: white;
+            font-family: Arial, sans-serif;
         }
 
         .dot {
@@ -46,94 +48,101 @@
             color: #ff7777;
             padding: 10px 20px;
             border-radius: 10px;
-            font-family: Arial, sans-serif;
             font-size: 16px;
             font-weight: bold;
             box-shadow: 0 0 10px #ff4444;
             border: 1px solid #ff4444;
         }
+
+        .response-box {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="dot"></div>
+    <div class="response-box">Say something...</div>
     <div class="error-message">⚠️ Voice synthesis failed</div>
 
     <script>
         const dot = document.querySelector('.dot');
+        const responseBox = document.querySelector('.response-box');
         const errorMessage = document.querySelector('.error-message');
-        let audioContext;
-        let analyser;
-        let microphone;
-        let isMuted = false;
-        let lastVoiceTime = 0;
+
+        let recognition;
         let isSpeaking = false;
-        let errorTimeout;
 
-        async function startVoiceDetection() {
+        function startSpeechRecognition() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                microphone = audioContext.createMediaStreamSource(stream);
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = true;
+                recognition.lang = "en-US";
 
-                microphone.connect(analyser);
-                analyser.fftSize = 256;
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
+                recognition.onstart = () => {
+                    console.log("Listening...");
+                };
 
-                function analyzeVoice() {
-                    analyser.getByteFrequencyData(dataArray);
-                    const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-                    const currentTime = Date.now();
+                recognition.onresult = (event) => {
+                    const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+                    console.log("User said:", transcript);
 
-                    // Voice detected
-                    if (average > 30 && average < 180) {
-                        lastVoiceTime = currentTime;
-
-                        if (!isSpeaking) {
-                            dot.classList.add('blink');
-                            setTimeout(() => dot.classList.remove('blink'), 500);
-                            isSpeaking = true;
-                        }
-
-                        if (isMuted) {
-                            isMuted = false;
-                            if (microphone.connect) microphone.connect(analyser);
-                        }
-
-                        // Hide error message if speaking normally
-                        errorMessage.style.display = "none";
-                        clearTimeout(errorTimeout);
-                    } 
-
-                    // High noise detected
-                    else if (average >= 180) {
-                        errorMessage.style.display = "block";
-                        clearTimeout(errorTimeout);
-                        errorTimeout = setTimeout(() => {
-                            errorMessage.style.display = "none";
-                        }, 3000);
-                    } 
-
-                    // No voice detected
-                    else {
-                        isSpeaking = false;
-                        if (!isMuted) {
-                            isMuted = true;
-                            microphone.disconnect();
-                        }
+                    if (!isSpeaking) {
+                        dot.classList.add('blink');
+                        setTimeout(() => dot.classList.remove('blink'), 500);
                     }
 
-                    requestAnimationFrame(analyzeVoice);
-                }
+                    respondToUser(transcript);
+                };
 
-                analyzeVoice();
+                recognition.onerror = (event) => {
+                    console.error("Speech recognition error:", event.error);
+                    errorMessage.style.display = "block";
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000);
+                };
+
+                recognition.start();
             } catch (error) {
-                console.error('Error accessing microphone:', error);
+                console.error("Speech recognition not supported:", error);
             }
         }
 
-        startVoiceDetection();
+        function respondToUser(text) {
+            let response = generateEcoResponse(text);
+            responseBox.innerText = response;
+            speakResponse(response);
+        }
+
+        function generateEcoResponse(text) {
+            // Basic eco-friendly responses
+            if (text.includes("hello")) return "Hello! Did you know planting a tree can reduce carbon dioxide?";
+            if (text.includes("climate change")) return "Reducing plastic waste can help fight climate change!";
+            if (text.includes("energy")) return "Switching to solar power is a great way to save energy!";
+            if (text.includes("plastic")) return "Recycling plastic helps protect marine life!";
+            return "Let's work together for a greener planet!";
+        }
+
+        function speakResponse(text) {
+            if ('speechSynthesis' in window) {
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = "en-US";
+                utterance.rate = 1;
+                utterance.onstart = () => isSpeaking = true;
+                utterance.onend = () => isSpeaking = false;
+                speechSynthesis.speak(utterance);
+            } else {
+                errorMessage.style.display = "block";
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 3000);
+            }
+        }
+
+        startSpeechRecognition();
     </script>
 </body>
 </html>
