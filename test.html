@@ -23,13 +23,13 @@
             background-color: red;
             border-radius: 50%;
             transition: opacity 0.1s ease, filter 0.3s ease;
-            filter: blur(50px);
-            box-shadow: 0 0 50px red;
+            filter: blur(60px); /* Ensuring full blur */
+            box-shadow: 0 0 60px red; /* Stronger glow to avoid exposure */
             opacity: 1;
         }
 
         .dot.blink {
-            animation: blink 0.5s 1 alternate;
+            animation: blink 0.3s infinite alternate;
         }
 
         @keyframes blink {
@@ -56,7 +56,7 @@
 </head>
 <body>
     <div class="dot"></div>
-    <div class="error-message">⚠️ Voice synthesis failed</div>
+    <div class="error-message">⚠️ Loud noise detected</div>
 
     <script>
         const dot = document.querySelector('.dot');
@@ -64,6 +64,37 @@
 
         let recognition;
         let isSpeaking = false;
+        let audioContext, analyser, microphone;
+
+        async function startVoiceDetection() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                function analyzeNoise() {
+                    analyser.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+
+                    if (average > 100) {
+                        errorMessage.style.display = "block";
+                        setTimeout(() => errorMessage.style.display = "none", 2000);
+                    }
+
+                    requestAnimationFrame(analyzeNoise);
+                }
+
+                analyzeNoise();
+            } catch (error) {
+                console.error("Microphone access error:", error);
+            }
+        }
 
         function startSpeechRecognition() {
             try {
@@ -75,18 +106,15 @@
                     const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
                     console.log("User said:", transcript);
 
-                    if (!isSpeaking) {
-                        dot.classList.add('blink');
-                        setTimeout(() => dot.classList.remove('blink'), 500);
-                    }
+                    dot.classList.add('blink');
+                    clearTimeout(blinkTimeout);
+                    var blinkTimeout = setTimeout(() => dot.classList.remove('blink'), 1000);
 
                     respondToUser(transcript);
                 };
 
                 recognition.onerror = (event) => {
                     console.error("Speech recognition error:", event.error);
-                    errorMessage.style.display = "block";
-                    setTimeout(() => errorMessage.style.display = "none", 3000);
                 };
 
                 recognition.start();
@@ -102,7 +130,6 @@
         }
 
         function generateEcoResponse(text) {
-            // Basic eco-friendly responses
             if (text.includes("hello")) return "Hello! Did you know planting trees helps absorb carbon dioxide?";
             if (text.includes("climate change")) return "We can slow climate change by reducing waste and using clean energy!";
             if (text.includes("energy")) return "Switching to solar power can greatly reduce carbon emissions!";
@@ -118,12 +145,10 @@
                 utterance.onstart = () => isSpeaking = true;
                 utterance.onend = () => isSpeaking = false;
                 speechSynthesis.speak(utterance);
-            } else {
-                errorMessage.style.display = "block";
-                setTimeout(() => errorMessage.style.display = "none", 3000);
             }
         }
 
+        startVoiceDetection();
         startSpeechRecognition();
     </script>
 </body>
