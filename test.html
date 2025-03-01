@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width:device-width, initial-scale=1.0">
     <title>Voice Activated Dot</title>
     <style>
         body {
@@ -20,21 +20,29 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            box-shadow: 0 0 100px 50px red; /* Smooth glow effect */
-            opacity: 0.3; /* Initially dim */
-            transform: scale(1);
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transition: transform 0.2s ease, opacity 0.1s ease;
+            filter: blur(50px);
+            box-shadow: 0 0 20px red;
+            opacity: 1;
         }
 
-        .active {
-            opacity: 1;
+        .dot.pulse {
             animation: pulse 1s infinite alternate;
+        }
+
+        .dot.blink {
+            animation: blink 0.3s 1 alternate;
         }
 
         @keyframes pulse {
             to {
-                transform: scale(1.2);
-                box-shadow: 0 0 150px 70px red; /* Stronger glow during pulse */
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes blink {
+            to {
+                opacity: 0.5;
             }
         }
     </style>
@@ -47,7 +55,8 @@
         let audioContext;
         let analyser;
         let microphone;
-        let isActive = false;
+        let isMuted = false;
+        let lastVoiceTime = 0;
 
         async function startVoiceDetection() {
             try {
@@ -64,16 +73,30 @@
                 function analyzeVoice() {
                     analyser.getByteFrequencyData(dataArray);
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+                    const currentTime = Date.now();
 
                     if (average > 30) {
-                        if (!isActive) {
-                            dot.classList.add('active');
-                            isActive = true;
+                        lastVoiceTime = currentTime;
+
+                        if (!dot.classList.contains('blink')) {
+                            dot.classList.add('blink');
+                            setTimeout(() => dot.classList.remove('blink'), 300);
                         }
+
+                        if (!dot.classList.contains('pulse')){
+                            dot.classList.add('pulse');
+                        }
+
+                        if(isMuted){
+                            isMuted=false;
+                            if (microphone.connect) microphone.connect(analyser);
+                        }
+
                     } else {
-                        if (isActive) {
-                            dot.classList.remove('active');
-                            isActive = false;
+                        dot.classList.remove('pulse');
+                        if(!isMuted){
+                            isMuted = true;
+                            microphone.disconnect();
                         }
                     }
 
