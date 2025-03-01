@@ -20,20 +20,19 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            box-shadow: 0 0 100px 50px red; /* Stronger, smoother glow */
-            opacity: 0.3; /* Initially dim */
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .active {
+            transition: opacity 0.1s ease;
+            filter: blur(50px);
+            box-shadow: 0 0 20px red;
             opacity: 1;
-            animation: pulse 1s infinite alternate;
         }
 
-        @keyframes pulse {
+        .dot.blink {
+            animation: blink 0.5s 1 alternate;
+        }
+
+        @keyframes blink {
             to {
-                transform: scale(1.2);
-                box-shadow: 0 0 150px 70px red; /* More intense glow */
+                opacity: 0.5;
             }
         }
     </style>
@@ -46,8 +45,9 @@
         let audioContext;
         let analyser;
         let microphone;
+        let isMuted = false;
         let lastVoiceTime = 0;
-        let isActive = false;
+        let isSpeaking = false;
 
         async function startVoiceDetection() {
             try {
@@ -57,7 +57,7 @@
                 microphone = audioContext.createMediaStreamSource(stream);
 
                 microphone.connect(analyser);
-                analyser.fftSize = 512; // Increased sensitivity
+                analyser.fftSize = 256;
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
 
@@ -66,17 +66,24 @@
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
                     const currentTime = Date.now();
 
-                    if (average > 15) { // Lowered threshold for better detection
+                    if (average > 30) {
                         lastVoiceTime = currentTime;
 
-                        if (!isActive) {
-                            dot.classList.add('active');
-                            isActive = true;
+                        if (!isSpeaking) {
+                            dot.classList.add('blink');
+                            setTimeout(() => dot.classList.remove('blink'), 500);
+                            isSpeaking = true;
                         }
-                    } else if (currentTime - lastVoiceTime > 500) { // Wait 0.5s before deactivating
-                        if (isActive) {
-                            dot.classList.remove('active');
-                            isActive = false;
+
+                        if (isMuted) {
+                            isMuted = false;
+                            if (microphone.connect) microphone.connect(analyser);
+                        }
+                    } else {
+                        isSpeaking = false;
+                        if (!isMuted) {
+                            isMuted = true;
+                            microphone.disconnect();
                         }
                     }
 
