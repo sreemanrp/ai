@@ -20,8 +20,7 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            filter: blur(50px);
-            box-shadow: 0 0 40px red;
+            box-shadow: 0 0 40px 20px red; /* Increased glow effect */
             opacity: 0.3; /* Initially faded */
             transform: scale(1);
             transition: opacity 0.3s ease, transform 0.3s ease;
@@ -35,7 +34,7 @@
         @keyframes pulse {
             to {
                 transform: scale(1.2);
-                box-shadow: 0 0 60px red;
+                box-shadow: 0 0 60px 30px red; /* Smooth glowing effect */
             }
         }
     </style>
