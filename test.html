@@ -20,8 +20,8 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            filter: blur(100px);
-            box-shadow: 0 0 40px red;
+            filter: blur(50px);
+            box-shadow: 0 0 20px red;
             opacity: 0.3; /* Initially faded */
             transform: scale(1);
             transition: opacity 0.3s ease, transform 0.3s ease;
@@ -32,10 +32,19 @@
             animation: pulse 1s infinite alternate;
         }
 
+        .blink {
+            animation: blink 0.3s 1 alternate;
+        }
+
         @keyframes pulse {
             to {
-                transform: scale(1.2);
-                box-shadow: 0 0 60px red;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes blink {
+            to {
+                opacity: 0.5;
             }
         }
     </style>
@@ -71,6 +80,9 @@
                             dot.classList.add('active');
                             isActive = true;
                         }
+                        
+                        dot.classList.add('blink');
+                        setTimeout(() => dot.classList.remove('blink'), 300);
                     } else {
                         if (isActive) {
                             dot.classList.remove('active');
