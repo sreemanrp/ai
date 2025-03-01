@@ -20,7 +20,8 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            box-shadow: 0 0 50px 20px red; /* Only Red Glow */
+            filter: blur(50px);
+            box-shadow: 0 0 40px red;
             opacity: 0.3; /* Initially faded */
             transform: scale(1);
             transition: opacity 0.3s ease, transform 0.3s ease;
@@ -34,7 +35,7 @@
         @keyframes pulse {
             to {
                 transform: scale(1.2);
-                box-shadow: 0 0 70px 30px red; /* Stronger Red Glow */
+                box-shadow: 0 0 60px red;
             }
         }
     </style>
