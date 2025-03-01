@@ -20,17 +20,13 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            transition: transform 0.2s ease, opacity 0.1s ease;
             filter: blur(50px);
             box-shadow: 0 0 20px red;
             opacity: 1;
+            animation: pulse 1s infinite alternate; /* Always pulsing */
         }
 
-        .dot.pulse {
-            animation: pulse 1s infinite alternate;
-        }
-
-        .dot.blink {
+        .blink {
             animation: blink 0.3s 1 alternate;
         }
 
@@ -55,8 +51,6 @@
         let audioContext;
         let analyser;
         let microphone;
-        let isMuted = false;
-        let lastVoiceTime = 0;
 
         async function startVoiceDetection() {
             try {
@@ -73,30 +67,11 @@
                 function analyzeVoice() {
                     analyser.getByteFrequencyData(dataArray);
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-                    const currentTime = Date.now();
 
                     if (average > 30) {
-                        lastVoiceTime = currentTime;
-
                         if (!dot.classList.contains('blink')) {
                             dot.classList.add('blink');
                             setTimeout(() => dot.classList.remove('blink'), 300);
-                        }
-
-                        if (!dot.classList.contains('pulse')){
-                            dot.classList.add('pulse');
-                        }
-
-                        if(isMuted){
-                            isMuted=false;
-                            if (microphone.connect) microphone.connect(analyser);
-                        }
-
-                    } else {
-                        dot.classList.remove('pulse');
-                        if(!isMuted){
-                            isMuted = true;
-                            microphone.disconnect();
                         }
                     }
 
