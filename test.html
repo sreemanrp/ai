@@ -16,31 +16,31 @@
             overflow: hidden;
         }
 
-        /* Exact Swift AI Red Dot */
+        /* Swift AI Exact Red Dot */
         .dot {
-            width: 140px;
-            height: 140px;
+            width: 80px;
+            height: 80px;
             background-color: rgba(255, 0, 0, 1);
             border-radius: 50%;
             position: absolute;
-            filter: blur(40px);
-            box-shadow: 0 0 100px rgba(255, 0, 0, 0.9);
-            animation: idleGlow 3s infinite ease-in-out;
+            filter: blur(20px);
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
+            animation: blink 1.5s infinite ease-in-out;
             transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
 
-        /* Subtle Breathing Animation (Idle State) */
-        @keyframes idleGlow {
-            0% { transform: scale(1); box-shadow: 0 0 80px rgba(255, 0, 0, 0.8); }
-            50% { transform: scale(1.2); box-shadow: 0 0 120px rgba(255, 0, 0, 1); }
-            100% { transform: scale(1); box-shadow: 0 0 80px rgba(255, 0, 0, 0.8); }
+        /* Blinking Effect */
+        @keyframes blink {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
-        /* Speaking Effect (Expanding and Glowing) */
+        /* Speaking Effect */
         .speaking {
-            transform: scale(1.8);
-            filter: blur(50px);
-            box-shadow: 0 0 150px rgba(255, 0, 0, 1);
+            transform: scale(1.4);
+            filter: blur(25px);
+            box-shadow: 0 0 70px rgba(255, 0, 0, 1);
             animation: none;
         }
     </style>
@@ -53,6 +53,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             const dot = document.getElementById("dot");
             let recognition;
+            let isMuted = false;
 
             if ('webkitSpeechRecognition' in window) {
                 recognition = new webkitSpeechRecognition();
@@ -60,17 +61,35 @@
                 recognition.interimResults = true;
                 recognition.lang = "en-US";
 
+                recognition.onstart = function() {
+                    isMuted = false;
+                };
+
                 recognition.onresult = function(event) {
                     dot.classList.add("speaking");  // Expand & glow while speaking
                     clearTimeout(window.speechTimeout);
                     window.speechTimeout = setTimeout(() => {
                         dot.classList.remove("speaking"); // Reset after silence
-                    }, 300);
+                        muteMic();  // Auto mute when silent
+                    }, 1000);
                 };
 
                 recognition.onerror = function(event) {
                     console.error("Speech Recognition Error:", event.error);
                 };
+
+                function startListening() {
+                    if (isMuted) {
+                        recognition.start();
+                        isMuted = false;
+                    }
+                }
+
+                function muteMic() {
+                    recognition.stop();
+                    isMuted = true;
+                    setTimeout(startListening, 2000); // Restart after 2 sec
+                }
 
                 // Request mic access & start recognition
                 navigator.mediaDevices.getUserMedia({ audio: true })
