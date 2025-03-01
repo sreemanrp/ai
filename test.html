@@ -7,7 +7,7 @@
     <style>
         @font-face {
             font-family: 'Brass Mono Code';
-            src: url('BrassMonoCode.woff2') format('woff2'); /* Make sure to have the correct font file */
+            src: url('BrassMonoCode.woff2') format('woff2'); /* Ensure the font file is available */
         }
 
         body {
@@ -29,25 +29,25 @@
             background-color: red;
             border-radius: 50%;
             transition: opacity 0.1s ease, filter 0.3s ease;
-            filter: blur(60px); /* Ensuring full blur */
-            box-shadow: 0 0 60px red; /* Stronger glow to avoid exposure */
+            filter: blur(60px);
+            box-shadow: 0 0 60px red; /* Stronger glow to prevent exposure */
             opacity: 1;
         }
 
-        .dot.blink {
-            animation: blink 0.3s infinite alternate;
+        .dot.pulse {
+            animation: pulse 1s infinite alternate;
         }
 
-        @keyframes blink {
+        @keyframes pulse {
             to {
-                opacity: 0.5;
+                transform: scale(1.1);
             }
         }
 
         .error-message {
             display: none;
             position: absolute;
-            bottom: 80px; /* Moved higher from the bottom */
+            bottom: 80px; /* Adjusted position */
             left: 20px;
             background-color: #4c0000;
             color: #ff7777;
@@ -55,8 +55,8 @@
             border-radius: 10px;
             font-size: 16px;
             font-weight: bold;
-            border: 1px solid #ff4444;
-            backdrop-filter: none; /* No blur effect */
+            border: 1px solid #ff4444; /* No glow effect */
+            backdrop-filter: none;
         }
     </style>
 </head>
@@ -97,12 +97,12 @@
 
                     if (average > 30) {
                         lastVoiceTime = currentTime;
-                        if (!dot.classList.contains('blink')) {
-                            dot.classList.add('blink');
+                        if (!dot.classList.contains('pulse')) {
+                            dot.classList.add('pulse');
                         }
                     } else {
                         if (Date.now() - lastVoiceTime > 1000) {
-                            dot.classList.remove('blink');
+                            dot.classList.remove('pulse');
                         }
                     }
 
@@ -127,8 +127,8 @@
                     console.log("User said:", transcript);
 
                     lastVoiceTime = Date.now();
-                    if (!dot.classList.contains('blink')) {
-                        dot.classList.add('blink');
+                    if (!dot.classList.contains('pulse')) {
+                        dot.classList.add('pulse');
                     }
 
                     respondToUser(transcript);
@@ -167,7 +167,7 @@
                 utterance.onend = () => {
                     isSpeaking = false;
                     if (Date.now() - lastVoiceTime > 1000) {
-                        dot.classList.remove('blink');
+                        dot.classList.remove('pulse');
                     }
                 };
                 speechSynthesis.speak(utterance);
