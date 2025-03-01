@@ -13,6 +13,7 @@
             height: 100vh;
             background-color: black;
             overflow: hidden;
+            flex-direction: column;
         }
 
         .dot {
@@ -35,19 +36,37 @@
                 opacity: 0.5;
             }
         }
+
+        .error-message {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            background-color: #4c0000;
+            color: #ff7777;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 0 10px #ff4444;
+            border: 1px solid #ff4444;
+        }
     </style>
 </head>
 <body>
     <div class="dot"></div>
+    <div class="error-message">⚠️ Voice synthesis failed</div>
 
     <script>
         const dot = document.querySelector('.dot');
+        const errorMessage = document.querySelector('.error-message');
         let audioContext;
         let analyser;
         let microphone;
         let isMuted = false;
         let lastVoiceTime = 0;
         let isSpeaking = false;
+        let errorTimeout;
 
         async function startVoiceDetection() {
             try {
@@ -66,7 +85,8 @@
                     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
                     const currentTime = Date.now();
 
-                    if (average > 30) {
+                    // Voice detected
+                    if (average > 30 && average < 180) {
                         lastVoiceTime = currentTime;
 
                         if (!isSpeaking) {
@@ -79,7 +99,23 @@
                             isMuted = false;
                             if (microphone.connect) microphone.connect(analyser);
                         }
-                    } else {
+
+                        // Hide error message if speaking normally
+                        errorMessage.style.display = "none";
+                        clearTimeout(errorTimeout);
+                    } 
+
+                    // High noise detected
+                    else if (average >= 180) {
+                        errorMessage.style.display = "block";
+                        clearTimeout(errorTimeout);
+                        errorTimeout = setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000);
+                    } 
+
+                    // No voice detected
+                    else {
                         isSpeaking = false;
                         if (!isMuted) {
                             isMuted = true;
