@@ -14,8 +14,6 @@
             background-color: black;
             overflow: hidden;
             flex-direction: column;
-            color: white;
-            font-family: Arial, sans-serif;
         }
 
         .dot {
@@ -23,9 +21,9 @@
             height: 100px;
             background-color: red;
             border-radius: 50%;
-            transition: opacity 0.1s ease;
+            transition: opacity 0.1s ease, filter 0.3s ease;
             filter: blur(50px);
-            box-shadow: 0 0 20px red;
+            box-shadow: 0 0 50px red;
             opacity: 1;
         }
 
@@ -53,23 +51,14 @@
             box-shadow: 0 0 10px #ff4444;
             border: 1px solid #ff4444;
         }
-
-        .response-box {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
     <div class="dot"></div>
-    <div class="response-box">Say something...</div>
     <div class="error-message">⚠️ Voice synthesis failed</div>
 
     <script>
         const dot = document.querySelector('.dot');
-        const responseBox = document.querySelector('.response-box');
         const errorMessage = document.querySelector('.error-message');
 
         let recognition;
@@ -80,10 +69,6 @@
                 recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
                 recognition.continuous = true;
                 recognition.lang = "en-US";
-
-                recognition.onstart = () => {
-                    console.log("Listening...");
-                };
 
                 recognition.onresult = (event) => {
                     const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
@@ -100,9 +85,7 @@
                 recognition.onerror = (event) => {
                     console.error("Speech recognition error:", event.error);
                     errorMessage.style.display = "block";
-                    setTimeout(() => {
-                        errorMessage.style.display = "none";
-                    }, 3000);
+                    setTimeout(() => errorMessage.style.display = "none", 3000);
                 };
 
                 recognition.start();
@@ -113,17 +96,17 @@
 
         function respondToUser(text) {
             let response = generateEcoResponse(text);
-            responseBox.innerText = response;
+            console.log("AI Response:", response);
             speakResponse(response);
         }
 
         function generateEcoResponse(text) {
             // Basic eco-friendly responses
-            if (text.includes("hello")) return "Hello! Did you know planting a tree can reduce carbon dioxide?";
-            if (text.includes("climate change")) return "Reducing plastic waste can help fight climate change!";
-            if (text.includes("energy")) return "Switching to solar power is a great way to save energy!";
-            if (text.includes("plastic")) return "Recycling plastic helps protect marine life!";
-            return "Let's work together for a greener planet!";
+            if (text.includes("hello")) return "Hello! Did you know planting trees helps absorb carbon dioxide?";
+            if (text.includes("climate change")) return "We can slow climate change by reducing waste and using clean energy!";
+            if (text.includes("energy")) return "Switching to solar power can greatly reduce carbon emissions!";
+            if (text.includes("plastic")) return "Recycling plastic helps protect our oceans and wildlife!";
+            return "Together, we can make the world a greener place!";
         }
 
         function speakResponse(text) {
@@ -136,9 +119,7 @@
                 speechSynthesis.speak(utterance);
             } else {
                 errorMessage.style.display = "block";
-                setTimeout(() => {
-                    errorMessage.style.display = "none";
-                }, 3000);
+                setTimeout(() => errorMessage.style.display = "none", 3000);
             }
         }
 
