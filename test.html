@@ -29,8 +29,8 @@
             background-color: red;
             border-radius: 50%;
             transition: opacity 0.1s ease, filter 0.3s ease;
-            filter: blur(60px);
-            box-shadow: 0 0 60px red; /* Stronger glow to prevent exposure */
+            filter: blur(60px); /* Increased blur to prevent exposure */
+            box-shadow: 0 0 80px red; /* Stronger glow to keep the dot consistently blurred */
             opacity: 1;
         }
 
@@ -41,6 +41,7 @@
         @keyframes pulse {
             to {
                 transform: scale(1.1);
+                box-shadow: 0 0 100px red; /* Maintain glow intensity during pulse */
             }
         }
     </style>
