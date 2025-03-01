@@ -18,20 +18,30 @@
 
         /* Swift AI-Style Red Dot */
         .dot {
-            width: 120px;
-            height: 120px;
-            background-color: rgba(255, 0, 0, 0.9);
+            width: 150px;
+            height: 150px;
+            background-color: red;
             border-radius: 50%;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
-            filter: blur(20px);
+            position: absolute;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.7);
+            filter: blur(30px);
+            animation: idleGlow 3s infinite ease-in-out;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, filter 0.2s ease-in-out;
+        }
+
+        /* Soft Breathing Animation (Idle State) */
+        @keyframes idleGlow {
+            0% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 0, 0, 0.7); }
+            50% { transform: scale(1.1); box-shadow: 0 0 70px rgba(255, 0, 0, 0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 0, 0, 0.7); }
         }
 
         /* Speaking Effect */
         .speaking {
-            transform: scale(1.4);
-            box-shadow: 0 0 90px rgba(255, 0, 0, 1);
-            filter: blur(30px);
+            transform: scale(1.5);
+            box-shadow: 0 0 100px rgba(255, 0, 0, 1);
+            filter: blur(40px);
+            animation: none;
         }
     </style>
 </head>
