@@ -10,12 +10,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: sans-serif;
+            font-family: "Inter", sans-serif;
         }
 
         /* Background Styling */
         body {
-            background: radial-gradient(circle, rgba(20, 20, 20, 1) 0%, rgba(10, 10, 10, 1) 100%);
+            background-color: #0a0a0a;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -23,8 +23,8 @@
             height: 100vh;
             text-align: center;
             color: white;
-            overflow: hidden;
             position: relative;
+            overflow: hidden;
         }
 
         /* Grid Overlay */
@@ -48,13 +48,15 @@
         }
 
         h1 {
-            font-size: 4rem;
-            font-weight: bold;
+            font-size: 64px;
+            font-weight: 700;
+            letter-spacing: -1px;
         }
 
         p {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
             margin-bottom: 20px;
         }
 
@@ -63,18 +65,19 @@
             display: flex;
             align-items: center;
             background: rgba(255, 255, 255, 0.1);
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 12px;
             width: 280px;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
         }
 
         .input-box input {
             background: transparent;
             border: none;
             color: white;
-            font-size: 1rem;
+            font-size: 14px;
             flex: 1;
             outline: none;
         }
@@ -84,7 +87,7 @@
             border: none;
             color: white;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 16px;
         }
 
         /* GitHub Button */
@@ -92,16 +95,19 @@
             background: none;
             border: none;
             color: white;
-            font-size: 1.2rem;
+            font-size: 16px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         /* Footer */
         .footer {
             position: absolute;
-            bottom: 10px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
+            bottom: 15px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
         }
     </style>
 </head>
@@ -111,13 +117,13 @@
         <h1>inspx</h1>
         <p>Pixel perfect layout inspection.</p>
         <div class="input-box">
-            <input type="text" id="npm-command" value="dfc i ai" readonly>
+            <input type="text" id="npm-command" value="npm install inspx" readonly>
             <button class="copy-btn" onclick="copyToClipboard()">📋</button>
         </div>
         <button class="github-btn">GitHub →</button>
     </div>
 
-    <div class="footer">Built by Sreeman ✌🏻</div>
+    <div class="footer">Built by Rauno ✌️</div>
 
     <script>
         function copyToClipboard() {
