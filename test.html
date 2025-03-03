@@ -3,157 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline AI Agent</title>
+    <title>Inspx Clone</title>
     <style>
-        @font-face {
-            font-family: 'Brass Mono Code';
-            src: url('BrassMonoCode.woff2') format('woff2'); /* Ensure the font file is available */
-        }
-
-        body {
+        /* General Reset */
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        /* Background Styling */
+        body {
+            background: radial-gradient(circle, rgba(20, 20, 20, 1) 0%, rgba(10, 10, 10, 1) 100%);
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-            overflow: hidden;
             flex-direction: column;
-            font-family: 'Brass Mono Code', monospace;
-            backdrop-filter: blur(30px); /* Full-screen blur effect */
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+            position: relative;
         }
 
-        .dot {
-            width: 100px;
-            height: 100px;
-            background-color: red;
-            border-radius: 50%;
-            transition: opacity 0.1s ease, filter 0.3s ease;
-            filter: blur(60px); /* Increased blur to prevent exposure */
-            box-shadow: 0 0 80px red; /* Stronger glow to keep the dot consistently blurred */
-            opacity: 1;
+        /* Grid Overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 0;
         }
 
-        .dot.pulse {
-            animation: pulse 1s infinite alternate;
+        /* Main Content */
+        .container {
+            position: relative;
+            z-index: 1;
         }
 
-        @keyframes pulse {
-            to {
-                transform: scale(1.1);
-                box-shadow: 0 0 100px red; /* Maintain glow intensity during pulse */
-            }
+        h1 {
+            font-size: 4rem;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        /* Input Box */
+        .input-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            justify-content: space-between;
+            width: 280px;
+        }
+
+        .input-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            flex: 1;
+            outline: none;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* GitHub Button */
+        .github-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
         }
     </style>
 </head>
 <body>
-    <div class="dot"></div>
+
+    <div class="container">
+        <h1>inspx</h1>
+        <p>Pixel perfect layout inspection.</p>
+        <div class="input-box">
+            <input type="text" id="npm-command" value="dfc i ai" readonly>
+            <button class="copy-btn" onclick="copyToClipboard()">📋</button>
+        </div>
+        <button class="github-btn">GitHub →</button>
+    </div>
+
+    <div class="footer">Built by Sreeman ✌🏻</div>
 
     <script>
-        const dot = document.querySelector('.dot');
-
-        let recognition;
-        let isSpeaking = false;
-        let audioContext, analyser, microphone;
-        let lastVoiceTime = 0;
-
-        async function startVoiceDetection() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                microphone = audioContext.createMediaStreamSource(stream);
-                microphone.connect(analyser);
-
-                analyser.fftSize = 256;
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-
-                function analyzeNoise() {
-                    analyser.getByteFrequencyData(dataArray);
-                    const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-                    const currentTime = Date.now();
-
-                    if (average > 30) {
-                        lastVoiceTime = currentTime;
-                        if (!dot.classList.contains('pulse')) {
-                            dot.classList.add('pulse');
-                        }
-                    } else {
-                        if (Date.now() - lastVoiceTime > 1000) {
-                            dot.classList.remove('pulse');
-                        }
-                    }
-
-                    requestAnimationFrame(analyzeNoise);
-                }
-
-                analyzeNoise();
-                startSpeechRecognition();
-            } catch (error) {
-                console.error("Microphone access error:", error);
-            }
+        function copyToClipboard() {
+            var copyText = document.getElementById("npm-command");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(copyText.value);
+            alert("Copied: " + copyText.value);
         }
-
-        function startSpeechRecognition() {
-            try {
-                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.continuous = true;
-                recognition.lang = "en-US";
-
-                recognition.onresult = (event) => {
-                    const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
-                    console.log("User said:", transcript);
-
-                    lastVoiceTime = Date.now();
-                    if (!dot.classList.contains('pulse')) {
-                        dot.classList.add('pulse');
-                    }
-
-                    respondToUser(transcript);
-                };
-
-                recognition.onerror = (event) => {
-                    console.error("Speech recognition error:", event.error);
-                };
-
-                recognition.start();
-            } catch (error) {
-                console.error("Speech recognition not supported:", error);
-            }
-        }
-
-        function respondToUser(text) {
-            let response = generateEcoResponse(text);
-            console.log("AI Response:", response);
-            speakResponse(response);
-        }
-
-        function generateEcoResponse(text) {
-            if (text.includes("hello")) return "Hello! Did you know planting trees helps absorb carbon dioxide?";
-            if (text.includes("climate change")) return "We can slow climate change by reducing waste and using clean energy!";
-            if (text.includes("energy")) return "Switching to solar power can greatly reduce carbon emissions!";
-            if (text.includes("plastic")) return "Recycling plastic helps protect our oceans and wildlife!";
-            return "Together, we can make the world a greener place!";
-        }
-
-        function speakResponse(text) {
-            if ('speechSynthesis' in window) {
-                let utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = "en-US";
-                utterance.rate = 1;
-                utterance.onstart = () => isSpeaking = true;
-                utterance.onend = () => {
-                    isSpeaking = false;
-                    if (Date.now() - lastVoiceTime > 1000) {
-                        dot.classList.remove('pulse');
-                    }
-                };
-                speechSynthesis.speak(utterance);
-            }
-        }
-
-        startVoiceDetection();
     </script>
+
 </body>
 </html>
