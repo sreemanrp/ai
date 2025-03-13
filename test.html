@@ -17,15 +17,15 @@
             font-family: 'Inter', sans-serif;
             background-color: #000;
             color: #fff;
-            /* Removed overflow: hidden to allow scrolling */
-            min-height: 100vh; /* Ensure body can expand beyond viewport */
+            min-height: 100vh;
         }
 
         .container {
             position: relative;
             width: 100%;
-            min-height: 100vh; /* Changed from height to min-height to allow expansion */
-            /* Removed overflow: hidden to allow scrolling */
+            max-width: 1440px; /* Set a max-width for larger screens like laptops */
+            min-height: 100vh;
+            margin: 0 auto; /* Center the container */
         }
 
         .light-beam {
@@ -63,12 +63,14 @@
         .content {
             position: relative;
             z-index: 2;
-            min-height: 100vh; /* Changed from height to min-height to allow expansion */
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             padding: 0 10%;
             padding-top: 15%;
+            max-width: 1200px; /* Slightly smaller max-width for content to leave space on sides */
+            margin: 0 auto; /* Center the content */
         }
 
         .headline {
@@ -115,6 +117,8 @@
 
             .content {
                 padding-top: 20%;
+                max-width: 100%; /* Full width on smaller screens */
+                padding: 0 5%;
             }
         }
 
@@ -126,6 +130,14 @@
             .content {
                 padding: 0 5%;
                 padding-top: 25%;
+            }
+        }
+
+        /* Adjustments for larger screens */
+        @media (min-width: 1024px) {
+            .light-beam {
+                right: -5%; /* Adjust position for better visibility on larger screens */
+                width: 60%; /* Slightly reduce width for balance */
             }
         }
     </style>
